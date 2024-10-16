@@ -1,15 +1,83 @@
-[gd_scene load_steps=5 format=3 uid="uid://bjwy0l03fj5yx"]
+[gd_scene load_steps=9 format=3 uid="uid://bjwy0l03fj5yx"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_fsx85"]
 [ext_resource type="PackedScene" uid="uid://dvhu21k07buxw" path="res://art/player.glb" id="1_ptuc8"]
+[ext_resource type="AudioStream" uid="uid://biemdsdpv7tp2" path="res://10月16日.MP3" id="2_ntwvq"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_b02wv"]
 radius = 0.8
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_fetdl"]
+radius = 0.6
+
+[sub_resource type="Animation" id="Animation_clim6"]
+length = 0.001
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../../Pivot/Character:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../../Pivot/Character:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_qd7a1"]
+resource_name = "float"
+length = 1.2
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../../Pivot/Character:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.3, 0.7),
+"transitions": PackedFloat32Array(2, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 0.65, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../../Pivot/Character:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.1, 0.5),
+"transitions": PackedFloat32Array(0.406126, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.139626, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_jssa5"]
+_data = {
+"RESET": SubResource("Animation_clim6"),
+"float": SubResource("Animation_qd7a1")
+}
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_fsx85")
+
+[node name="SOUND" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_ntwvq")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_b02wv")
@@ -24,7 +92,15 @@ collision_mask = 2
 monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MobDetector"]
-transform = Transform3D(2, 0, 0, 0, 0.1, 0, 0, 0, 2, 0, 0.5, 0)
+transform = Transform3D(2, 0, 0, 0, 0.5, 0, 0, 0, 2, 0, 0.5, 0)
 shape = SubResource("CylinderShape3D_fetdl")
 
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+root_node = NodePath("../MobDetector/CollisionShape3D")
+libraries = {
+"": SubResource("AnimationLibrary_jssa5")
+}
+autoplay = "float"
+
+[connection signal="hit" from="." to="." method="_on_hit"]
 [connection signal="body_entered" from="MobDetector" to="." method="_on_mob_detector_body_entered"]

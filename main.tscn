@@ -1,8 +1,13 @@
-[gd_scene load_steps=9 format=3 uid="uid://ce8ujfg1mwmfw"]
+[gd_scene load_steps=16 format=3 uid="uid://ce8ujfg1mwmfw"]
 
 [ext_resource type="PackedScene" uid="uid://bjwy0l03fj5yx" path="res://player.tscn" id="1_dkavo"]
 [ext_resource type="Script" path="res://main.gd" id="1_wbi6k"]
 [ext_resource type="PackedScene" uid="uid://dgoln4mt5q3qy" path="res://Mob.tscn" id="2_6hkph"]
+[ext_resource type="PackedScene" uid="uid://c7e0d8glhlqpe" path="res://music_player.tscn" id="3_8wxsg"]
+[ext_resource type="FontFile" uid="uid://bgcf7malwmm5t" path="res://fonts/Montserrat-Medium.ttf" id="4_6x1up"]
+[ext_resource type="Script" path="res://ScoreLabel.gd" id="5_teyqe"]
+[ext_resource type="AudioStream" uid="uid://b3be7xgb0qdyv" path="res://gameover.wav" id="7_v46yd"]
+[ext_resource type="AudioStream" uid="uid://biemdsdpv7tp2" path="res://10月16日.MP3" id="8_cgwxo"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4adsj"]
 
@@ -21,9 +26,21 @@ _data = {
 }
 point_count = 5
 
+[sub_resource type="Theme" id="Theme_nxsmv"]
+default_font = ExtResource("4_6x1up")
+default_font_size = 22
+
+[sub_resource type="LabelSettings" id="LabelSettings_rdlmv"]
+line_spacing = 100.0
+font = ExtResource("4_6x1up")
+font_size = 69
+font_color = Color(1, 0, 0, 1)
+
 [node name="Main" type="Node"]
 script = ExtResource("1_wbi6k")
 mob_scene = ExtResource("2_6hkph")
+
+[node name="MusicPlayer" parent="." instance=ExtResource("3_8wxsg")]
 
 [node name="Ground" type="StaticBody3D" parent="."]
 collision_layer = 4
@@ -43,7 +60,7 @@ transform = Transform3D(-0.707107, 0, 0.707107, 0.683013, 0.258819, 0.683013, -0
 shadow_enabled = true
 
 [node name="Player" parent="." instance=ExtResource("1_dkavo")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 collision_mask = 6
 
 [node name="CameraPivot" type="Marker3D" parent="."]
@@ -81,4 +98,56 @@ transform = Transform3D(0.0227219, 0, -0.999742, 0, 1, 0, 0.999742, 0, 0.0227219
 wait_time = 0.5
 autostart = true
 
+[node name="UserInterface" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ScoreLabel" type="Label" parent="UserInterface"]
+layout_mode = 1
+offset_right = 99.0
+offset_bottom = 29.0
+theme = SubResource("Theme_nxsmv")
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
+text = "Score：0"
+script = ExtResource("5_teyqe")
+
+[node name="Retry" type="ColorRect" parent="UserInterface"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 17.99
+anchor_bottom = 13.506
+offset_right = -606.6
+offset_bottom = -500.24
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.670588, 0.670588, 0.670588, 1)
+
+[node name="Label" type="Label" parent="UserInterface/Retry"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 6.365
+anchor_bottom = 13.53
+offset_left = 188.0
+offset_top = 230.0
+offset_right = -175.245
+offset_bottom = -226.2
+grow_horizontal = 2
+grow_vertical = 2
+text = "YOU DIED"
+label_settings = SubResource("LabelSettings_rdlmv")
+
+[node name="game_over_voice" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_v46yd")
+
+[node name="sound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_cgwxo")
+
+[node name="Mob" parent="." instance=ExtResource("2_6hkph")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21, 0.5, 0)
+
+[connection signal="hit" from="Player" to="." method="_on_player_hit"]
 [connection signal="timeout" from="MobTimer" to="." method="_on_mob_timer_timeout"]
+[connection signal="timeout" from="MobTimer" to="UserInterface/ScoreLabel" method="_on_mob_timer_timeout"]
+[connection signal="squashed" from="Mob" to="." method="_on_mob_squashed"]

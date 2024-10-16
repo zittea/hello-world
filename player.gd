@@ -71,6 +71,11 @@ func _physics_process(delta):
 	# Moving the Character
 	velocity = target_velocity
 	move_and_slide()
+	if direction != Vector3.ZERO:
+		$AnimationPlayer.speed_scale = 4
+	else:
+		$AnimationPlayer.speed_scale = 1
+	$Pivot.rotation.x = PI / 6 * velocity.y / jump_impulse
 
 # And this function at the bottom.
 func die():
@@ -79,3 +84,4 @@ func die():
 
 func _on_mob_detector_body_entered(body):
 	die()
+
